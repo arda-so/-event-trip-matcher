@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ExperienceCategory {
+  concert
+  sports
+  conference
+  retreat
+  heritage
+}
+
+enum EventStatus {
+  scheduled
+  cancelled
+  postponed
+}
+
+enum EventSource {
+  seeded
+  ticketmaster
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  profile     Profile?
+  searches    TripSearch[]
+  savedTrips  SavedTrip[]
+
+  @@map("users")
+}
+
+model Profile {
+  id           String   @id @default(cuid())
+  userId       String   @unique @map("user_id")
+  displayName  String?
+  homeCityId   String?  @map("home_city_id")
+  currency     String   @default("EUR")
+  budgetMin    Int?     @map("budget_min")
+  budgetMax    Int?     @map("budget_max")
+  interests    String[]
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  homeCity     City?    @relation(fields: [homeCityId], references: [id], onDelete: SetNull)
+
+  @@map("profiles")
+}
+
+model City {
+  id                String       @id @default(cuid())
+  slug              String       @unique
+  name              String
+  countryCode       String       @map("country_code")
+  countryName       String       @map("country_name")
+  airportCode       String?      @map("airport_code")
+  timezone          String
+  latitude          Decimal      @db.Decimal(9, 6)
+  longitude         Decimal      @db.Decimal(9, 6)
+  hotelNightlyAvg   Int          @map("hotel_nightly_avg")
+  transportCostBase Int          @map("transport_cost_base")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+  venues            Venue[]
+  residentProfiles  Profile[]
+  originSearches    TripSearch[] @relation("origin_city")
+  originSavedTrips  SavedTrip[]  @relation("origin_saved_city")
+
+  @@map("cities")
+}
+
+model Venue {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  cityId      String   @map("city_id")
+  name        String
+  addressLine String?  @map("address_line")
+  latitude    Decimal? @db.Decimal(9, 6)
+  longitude   Decimal? @db.Decimal(9, 6)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  city        City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  events      Event[]
+
+  @@index([cityId], map: "idx_venues_city_id")
+  @@map("venues")
+}
+
+model Event {
+  id              String             @id @default(cuid())
+  slug            String             @unique
+  venueId         String             @map("venue_id")
+  title           String
+  summary         String?
+  category        ExperienceCategory
+  startsAt        DateTime           @map("starts_at")
+  endsAt          DateTime?          @map("ends_at")
+  status          EventStatus        @default(scheduled)
+  source          EventSource
+  sourceRef       String             @map("source_ref")
+  externalUrl     String             @map("external_url")
+  imageUrl        String?            @map("image_url")
+  currency        String             @default("EUR")
+  minTicketPrice  Int?               @map("min_ticket_price")
+  maxTicketPrice  Int?               @map("max_ticket_price")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+  venue           Venue              @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  tripOptions     TripOption[]
+  savedTrips      SavedTrip[]
+
+  @@index([venueId, startsAt], map: "idx_events_venue_starts_at")
+  @@index([category, startsAt], map: "idx_events_category_starts_at")
+  @@index([source, sourceRef], map: "idx_events_source_ref")
+  @@unique([source, sourceRef], map: "uniq_events_source_ref")
+  @@map("events")
+}
+
+model TripSearch {
+  id            String             @id @default(cuid())
+  userId        String?            @map("user_id")
+  originCityId  String             @map("origin_city_id")
+  category      ExperienceCategory
+  minBudget     Int?               @map("min_budget")
+  maxBudget     Int?               @map("max_budget")
+  startDate     DateTime           @map("start_date")
+  endDate       DateTime           @map("end_date")
+  partySize     Int                @default(1) @map("party_size")
+  nightsMin     Int                @default(1) @map("nights_min")
+  nightsMax     Int                @default(3) @map("nights_max")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  user          User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  originCity    City               @relation("origin_city", fields: [originCityId], references: [id], onDelete: Cascade)
+  tripOptions   TripOption[]
+
+  @@index([originCityId, createdAt], map: "idx_trip_searches_origin_created_at")
+  @@index([userId, createdAt], map: "idx_trip_searches_user_created_at")
+  @@map("trip_searches")
+}
+
+model TripOption {
+  id                 String     @id @default(cuid())
+  searchId           String     @map("search_id")
+  eventId            String     @map("event_id")
+  travelStart        DateTime   @map("travel_start")
+  travelEnd          DateTime   @map("travel_end")
+  nights             Int
+  ticketEstimate     Int        @map("ticket_estimate")
+  transportEstimate  Int        @map("transport_estimate")
+  stayEstimate       Int        @map("stay_estimate")
+  totalEstimate      Int        @map("total_estimate")
+  score              Float
+  summary            String
+  createdAt          DateTime   @default(now()) @map("created_at")
+  search             TripSearch @relation(fields: [searchId], references: [id], onDelete: Cascade)
+  event              Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([searchId, score], map: "idx_trip_options_search_score")
+  @@index([eventId], map: "idx_trip_options_event_id")
+  @@map("trip_options")
+}
+
+model SavedTrip {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  eventId        String   @map("event_id")
+  originCityId   String   @map("origin_city_id")
+  totalEstimate  Int      @map("total_estimate")
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event          Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  originCity     City     @relation("origin_saved_city", fields: [originCityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId, originCityId], map: "uniq_saved_trip_user_event_origin")
+  @@index([userId, createdAt], map: "idx_saved_trips_user_created_at")
+  @@map("saved_trips")
+}
