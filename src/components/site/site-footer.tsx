@@ -8,12 +8,12 @@ export function SiteFooter() {
         <div>
           <p className="font-medium text-ink">{siteConfig.name}</p>
           <p className="mt-2 max-w-xl leading-6">
-            {siteConfig.name} helps users discover relevant trips and redirect them to official providers for booking.
+            {siteConfig.name} is a relationship-focused MVP built around weekly reflection, repair, intimacy, and
+            shared momentum.
           </p>
         </div>
         <div className="flex flex-wrap items-start gap-4 md:justify-end">
           <Link href="/about">About</Link>
-          <Link href="/contact">Contact</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
         </div>

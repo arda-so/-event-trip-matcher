@@ -274,3 +274,68 @@ Meaning:
 - category-specific ingestion adapters and metadata
 
 This keeps the product extensible without turning the codebase into spaghetti.
+
+## Resume Note
+
+Current status:
+
+- Local app foundation is built and verified.
+- GitHub repo exists and the code was pushed successfully.
+- Vercel project was created from the GitHub repo.
+- Public trust pages exist: home, about, how-it-works, contact, privacy, terms.
+- Search flow persists `trip_searches` and `trip_options`.
+- Search detail pages exist at `/searches/[searchId]`.
+- Internal import page exists at `/admin/imports`.
+- Ticketmaster import boundary exists, but live import still requires a real `TICKETMASTER_API_KEY`.
+- Neon integration was created in Vercel and a `DATABASE_URL` is available there.
+
+Important deployment issue already discovered:
+
+- Initial Vercel deploy failed because `DATABASE_URL` was missing.
+- The correct fix is to attach the database env var in Vercel and redeploy.
+
+Where we left off:
+
+The local machine was authenticated with the Vercel CLI, but the local project folder is not yet linked to the Vercel project.
+
+Next exact step:
+
+```bash
+cd /Users/solmaz/event-trip-matcher
+vercel link
+```
+
+When `vercel link` asks:
+
+- choose the correct Vercel scope/account
+- choose `Link to existing project`
+- enter project name: `event-trip-matcher`
+
+After linking, run:
+
+```bash
+vercel env pull .env.development.local
+```
+
+Then push schema and seed to the production database:
+
+```bash
+DATABASE_URL="PASTE_PRODUCTION_DATABASE_URL_HERE" npx prisma db push
+DATABASE_URL="PASTE_PRODUCTION_DATABASE_URL_HERE" npm run prisma:seed
+```
+
+Then verify deployed routes:
+
+- `/`
+- `/about`
+- `/how-it-works`
+- `/contact`
+- `/privacy`
+- `/terms`
+- `/api/health`
+
+Before public launch or partner applications:
+
+- replace temporary values in `src/lib/site-config.ts`
+- add real domain/app URL after Vercel deployment URL is known
+- add real contact/support details

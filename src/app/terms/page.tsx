@@ -6,20 +6,21 @@ export default function TermsPage() {
     <PageFrame
       eyebrow="Terms"
       title="Terms of Use"
-      intro="These terms are a product placeholder and should be reviewed before the site is used publicly for partner applications or user acquisition."
+      intro="These terms are placeholders for a private relationship app prototype and should be reviewed before public use."
     >
       <div className="space-y-5 text-sm leading-7 text-black/75">
         <p>
-          {siteConfig.legalName} provides informational trip matching and discovery tools. Prices, availability,
-          schedules, and provider terms can change after results are shown.
+          {siteConfig.legalName} provides relationship journaling, reflection, and planning tools. The app is intended
+          as a self-guided support tool, not therapy, counseling, or crisis care.
         </p>
         <p>
-          Users are responsible for reviewing final booking terms, refund rules, and travel requirements on the
-          relevant third-party provider website before purchasing.
+          Users remain responsible for how they interpret and use any prompts, notes, or stored content. If serious
+          relationship harm, abuse, or mental health risk is present, professional support should be used instead of
+          relying on software alone.
         </p>
         <p>
-          The service may contain estimated costs and links to external booking providers. We make no guarantee that
-          third-party information remains unchanged after display.
+          The service may contain placeholder content, sample prompts, and local demo data. No guarantee is made that
+          prototype content is complete, clinically informed, or appropriate for every situation.
         </p>
         <p>
           These terms are governed by the laws of <span className="font-medium text-ink">{siteConfig.jurisdiction}</span>,

@@ -184,3 +184,14 @@ model SavedTrip {
   @@index([userId, createdAt], map: "idx_saved_trips_user_created_at")
   @@map("saved_trips")
 }
+
+model RelationshipWorkspace {
+  id           String   @id @default(cuid())
+  workspaceKey String   @unique @map("workspace_key")
+  passcodeHash String   @map("passcode_hash")
+  data         Json
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("relationship_workspaces")
+}

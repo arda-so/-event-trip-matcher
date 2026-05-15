@@ -5,8 +5,8 @@ export default function ContactPage() {
   return (
     <PageFrame
       eyebrow="Contact"
-      title="Get in touch"
-      intro="For partnership, product, or support enquiries, use the contact details below."
+      title="Prototype contact details"
+      intro="This page exists so the app remains structurally complete, but the current details are placeholders."
     >
       <div className="space-y-4 text-sm leading-7 text-black/75">
         <p>
@@ -23,11 +23,8 @@ export default function ContactPage() {
         </p>
         <p className="rounded-2xl border border-rust/20 bg-rust/5 px-4 py-3 text-rust">{siteConfig.statusNote}</p>
         <p>
-          Business site and product URLs should be updated here before submitting partner applications.
-        </p>
-        <p>
-          If you plan to apply for affiliate or event API access, use a real business email and a live public site
-          rather than placeholder details.
+          Before sharing this app outside your own devices, replace the email address, domain, and legal information
+          with real details.
         </p>
       </div>
     </PageFrame>
